@@ -1,0 +1,29 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: employee-management-api
+
+# Custom properties bound to AppProperties (@ConfigurationProperties(prefix = "app"))
+app:
+  name: Employee Management API
+  default-department: IT
+  max-salary: 10000000
+
+logging:
+  level:
+    root: INFO
+    com.yourname.ems: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%X{requestId:-no-req}] %logger{36} - %msg%n"
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

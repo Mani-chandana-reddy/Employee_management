@@ -1,0 +1,214 @@
+### Employee Management API - works with IntelliJ HTTP Client and VS Code REST Client
+@baseUrl = http://localhost:8080
+@json = application/json
+
+### ===================== SUCCESS SCENARIOS =====================
+
+### 1. Create employee (201)
+POST {{baseUrl}}/api/v1/employees
+Content-Type: {{json}}
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe@example.com",
+  "phone": "9876543210",
+  "department": "IT",
+  "designation": "Software Engineer",
+  "salary": 75000.00,
+  "dateOfJoining": "2024-01-15"
+}
+
+### 1b. Create a second employee (201)
+POST {{baseUrl}}/api/v1/employees
+Content-Type: {{json}}
+
+{
+  "firstName": "Jane",
+  "lastName": "Smith",
+  "email": "jane.smith@example.com",
+  "phone": "9123456780",
+  "department": "HR",
+  "designation": "HR Manager",
+  "salary": 82000.50,
+  "dateOfJoining": "2023-06-01"
+}
+
+### 2. List all employees (200)
+GET {{baseUrl}}/api/v1/employees
+
+### 3. List with filters and sorting (200)
+GET {{baseUrl}}/api/v1/employees?department=IT&status=ACTIVE&sortBy=salary&order=desc
+
+### 4. Get employee by id (200)
+GET {{baseUrl}}/api/v1/employees/1
+
+### 5. Full update (200)
+PUT {{baseUrl}}/api/v1/employees/1
+Content-Type: {{json}}
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe@example.com",
+  "phone": "9876543210",
+  "department": "IT",
+  "designation": "Senior Software Engineer",
+  "salary": 95000.00,
+  "dateOfJoining": "2024-01-15"
+}
+
+### 6. Deactivate employee (200)
+PATCH {{baseUrl}}/api/v1/employees/1/status
+Content-Type: {{json}}
+
+{ "status": "INACTIVE" }
+
+### 7. Reactivate employee (200)
+PATCH {{baseUrl}}/api/v1/employees/1/status
+Content-Type: {{json}}
+
+{ "status": "ACTIVE" }
+
+### 8. Search by keyword (200)
+GET {{baseUrl}}/api/v1/employees/search?keyword=john
+
+### 9. List by department (200)
+GET {{baseUrl}}/api/v1/employees/department/IT
+
+### 10. Stats (200)
+GET {{baseUrl}}/api/v1/employees/stats
+
+### 11. Delete employee (204)
+DELETE {{baseUrl}}/api/v1/employees/2
+
+### 12. Health check (bonus)
+GET {{baseUrl}}/actuator/health
+
+### ===================== FAILURE SCENARIOS =====================
+
+### F1. Validation errors (400 with fieldErrors)
+POST {{baseUrl}}/api/v1/employees
+Content-Type: {{json}}
+
+{
+  "firstName": "J",
+  "lastName": "D0e",
+  "email": "not-an-email",
+  "phone": "123",
+  "department": "IT",
+  "designation": "",
+  "salary": -10,
+  "dateOfJoining": "2999-01-01"
+}
+
+### F2. Duplicate email (409) - run request 1 twice
+POST {{baseUrl}}/api/v1/employees
+Content-Type: {{json}}
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe@example.com",
+  "phone": "9876543210",
+  "department": "IT",
+  "designation": "Software Engineer",
+  "salary": 75000.00,
+  "dateOfJoining": "2024-01-15"
+}
+
+### F3. Invalid department enum in body (400)
+POST {{baseUrl}}/api/v1/employees
+Content-Type: {{json}}
+
+{
+  "firstName": "Alan",
+  "lastName": "Turing",
+  "email": "alan@example.com",
+  "phone": "9876543211",
+  "department": "MARKETING",
+  "designation": "Analyst",
+  "salary": 50000,
+  "dateOfJoining": "2024-01-15"
+}
+
+### F4. Salary above app.max-salary (400)
+POST {{baseUrl}}/api/v1/employees
+Content-Type: {{json}}
+
+{
+  "firstName": "Rich",
+  "lastName": "Person",
+  "email": "rich@example.com",
+  "phone": "9876543212",
+  "department": "FINANCE",
+  "designation": "CFO",
+  "salary": 99999999,
+  "dateOfJoining": "2024-01-15"
+}
+
+### F5. Get non-existent employee (404)
+GET {{baseUrl}}/api/v1/employees/9999
+
+### F6. Update non-existent employee (404)
+PUT {{baseUrl}}/api/v1/employees/9999
+Content-Type: {{json}}
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "ghost@example.com",
+  "phone": "9876543210",
+  "department": "IT",
+  "designation": "Engineer",
+  "salary": 70000,
+  "dateOfJoining": "2024-01-15"
+}
+
+### F7. Update with another employee's email (409)
+PUT {{baseUrl}}/api/v1/employees/1
+Content-Type: {{json}}
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "jane.smith@example.com",
+  "phone": "9876543210",
+  "department": "IT",
+  "designation": "Engineer",
+  "salary": 70000,
+  "dateOfJoining": "2024-01-15"
+}
+
+### F8. Change status of non-existent employee (404)
+PATCH {{baseUrl}}/api/v1/employees/9999/status
+Content-Type: {{json}}
+
+{ "status": "INACTIVE" }
+
+### F9. Invalid status value (400)
+PATCH {{baseUrl}}/api/v1/employees/1/status
+Content-Type: {{json}}
+
+{ "status": "RETIRED" }
+
+### F10. Delete non-existent employee (404)
+DELETE {{baseUrl}}/api/v1/employees/9999
+
+### F11. Unknown department path (400)
+GET {{baseUrl}}/api/v1/employees/department/MARKETING
+
+### F12. Invalid sortBy (400)
+GET {{baseUrl}}/api/v1/employees?sortBy=shoeSize
+
+### F13. Non-numeric id (400)
+GET {{baseUrl}}/api/v1/employees/abc
+
+### F14. Blank search keyword (400)
+GET {{baseUrl}}/api/v1/employees/search?keyword=
+
+### F15. Malformed JSON (400)
+POST {{baseUrl}}/api/v1/employees
+Content-Type: {{json}}
+
+{ "firstName": "John",
